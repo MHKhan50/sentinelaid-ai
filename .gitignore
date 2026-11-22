@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.env
+.DS_Store
+*.pyc
+
+# Local backups and development tools
+*.backup
+*.v2-backup
+.agents/
