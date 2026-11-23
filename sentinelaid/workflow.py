@@ -72,46 +72,57 @@ validated probabilities or definitive safety determinations."""
             "Evidence Verification Agent",
             model("EVIDENCE_VERIFICATION_MODEL", "qwen2.5:3b",
                   "REVIEWER_MODEL"),
-            """Perform a rigorous evidence audit.
+            """Perform a rigorous source-by-source evidence audit.
 
-PRIORITY: Treat the original supplied source material as the
-primary evidence. Previous agent outputs are opinions to review,
-not independent evidence.
+SOURCE COVERAGE IS MANDATORY:
+Review EVERY source supplied in the original material.
+Do not omit sources that only express uncertainty or limitations.
+
+For each source:
+- Identify its exact source label.
+- Summarise what it directly reports.
+- Identify what it does not establish.
+- State whether it corroborates, contradicts or does not verify
+  any other claim.
+- Do not treat a request for confirmation as confirmation.
 
 For every distinct claim:
-- Give a unique claim label.
-- Quote or accurately paraphrase the supplied claim.
-- List the exact supporting source labels.
-- Identify what each source actually establishes.
-- Separate direct reporting, corroboration and inference.
-- Assess whether sources are independent or may share information.
-- Identify missing dates, details and provenance.
+- Assign a unique claim ID only to substantive humanitarian claims.
+- Do not turn source limitations, requests for verification,
+  or statements of uncertainty into humanitarian crisis claims.
+- Treat S3 as a verification-limitation source, not a third
+  humanitarian crisis event.
+- Identify exact supporting source labels.
+- Separate direct reporting from inference.
+- Classify evidence as SINGLE SOURCE, MULTI-SOURCE CORROBORATION,
+  CONFLICTING REPORTS, NOT ESTABLISHED or UNVERIFIABLE.
+- Explain the evidence status and its limitations.
 
-Use these evidence statuses:
-- SINGLE SOURCE: reported by one supplied source.
-- MULTI-SOURCE CORROBORATION: independently supported by
-  multiple supplied sources.
-- CONFLICTING REPORTS: supplied sources make incompatible claims.
-- NOT ESTABLISHED: supplied sources do not adequately support
-  the claim.
-- UNVERIFIABLE: available material is insufficient to check it.
+For S3 or any similar source:
+Explicitly record statements about missing verification.
+Such statements are evidence about source limitations,
+not independent confirmation of the underlying claims.
 
-IMPORTANT RULES:
+IMPORTANT:
 - Absence of contradiction does not mean verification.
-- Repeated claims do not automatically count as corroboration.
-- A source requesting verification is not confirmation of a claim.
-- Do not invent sources, facts, dates or external verification.
-- Explicitly review all supplied source labels, including sources
-  that provide limitations or uncertainty.
-- If no direct contradiction is found, say so without implying
-  that the claims are verified.
-- Flag unsupported certainty and risk classifications from
-  previous agents.
-- Never convert missing information into an assumed fact.
+- Repeated claims do not automatically mean corroboration.
+- Never invent facts, sources or external checks.
+- Flag unsupported certainty and unsupported risk classifications.
+- Do not infer causes, affected populations or consequences
+  that the supplied sources do not establish.
+- Never request patient names, personal medical records or
+  identifying information about civilians.
+- Review previous agent outputs for unsupported claims,
+  invented details and unjustified risk classifications.
+- Distinguish source limitations from actual contradictions.
 
-Finish with a concise claim-by-claim evidence audit,
-conflicting information alerts, unsupported assertions,
-and a list of outstanding verification questions."""
+Finish with:
+1. Complete source inventory.
+2. Claim-by-claim evidence audit.
+3. Conflicting information alerts.
+4. Unsupported assertions.
+5. Outstanding verification questions.
+6. Explicit confirmation that every supplied source was reviewed."""
         ),
         (
             "Humanitarian Report Agent",

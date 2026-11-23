@@ -1,8 +1,39 @@
 from pathlib import Path
 import json
 import re
+from io import BytesIO
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
 import streamlit as st
 from sentinelaid.workflow import run
+
+def create_pdf_report(content):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = []
+
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            story.append(Spacer(1, 8))
+            continue
+        safe_line = (line.replace("&", "&amp;")
+                         .replace("<", "&lt;")
+                         .replace(">", "&gt;"))
+        if line.startswith("# "):
+            story.append(Paragraph(safe_line[2:], styles["Heading1"]))
+        elif line.startswith("## "):
+            story.append(Paragraph(safe_line[3:], styles["Heading2"]))
+        else:
+            story.append(Paragraph(safe_line, styles["BodyText"]))
+            story.append(Spacer(1, 5))
+
+    doc.build(story)
+    return buffer.getvalue()
+
 
 st.set_page_config(
     page_title="SentinelAid AI",
@@ -212,7 +243,7 @@ if results:
         for agent, output in results.items()
     )
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
 
     with col1:
         st.download_button(
@@ -229,6 +260,15 @@ if results:
             data=json.dumps(results, indent=2, ensure_ascii=False),
             file_name="sentinelaid_results.json",
             mime="application/json",
+            use_container_width=True
+        )
+
+    with col3:
+        st.download_button(
+            "⬇️ Download PDF report",
+            data=create_pdf_report(combined_report),
+            file_name="sentinelaid_humanitarian_report.pdf",
+            mime="application/pdf",
             use_container_width=True
         )
 
